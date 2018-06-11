@@ -5,21 +5,36 @@
     android:layout_height="match_parent"
     android:background="@android:color/black">
 
-    <org.bytedeco.javacv.android.recognize.example.CvCameraPreview
+    <com.doxua.www.javacvandroidrecognize.CvCameraPreview
         android:id="@+id/camera_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="center"
+        android:layout_width="400dp"
+        android:layout_height="200dp"
+        android:layout_gravity="bottom"
         app:camera_type="front"
         app:scale_type="full" />
+
+    <ImageView
+        android:id="@+id/image_view"
+        android:layout_width="400dp"
+        android:layout_height="200dp"
+        android:layout_gravity="top" />
+
+    <Button
+        android:id="@+id/pick_image_button"
+        android:layout_width="wrap_content"
+        android:layout_height="36dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="0dp"
+        android:text="Choose from gallery" />
 
     <Button
         android:id="@+id/btTrain"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Start Train"
-        android:layout_gravity="bottom|left"
-        />
+        android:layout_gravity="bottom|left" />
 
     <Button
         android:id="@+id/btPhoto"

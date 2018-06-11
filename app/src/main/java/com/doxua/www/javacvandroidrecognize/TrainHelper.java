@@ -9,7 +9,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.IntBuffer;
-import static org.bytedeco.javacpp.opencv_core.CV_32SC1;
+
 
 import org.bytedeco.javacpp.opencv_core;
 import org.bytedeco.javacpp.opencv_core.Mat;
@@ -18,19 +18,10 @@ import org.bytedeco.javacpp.opencv_core.Size;
 import org.bytedeco.javacpp.opencv_face.FaceRecognizer;
 import org.bytedeco.javacpp.opencv_objdetect;
 
+import static org.bytedeco.javacpp.opencv_core.CV_32SC1;
 import static org.bytedeco.javacpp.opencv_imgcodecs.imwrite;
 import static org.bytedeco.javacpp.opencv_imgproc.rectangle;
-
-//import static org.bytedeco.javacpp.opencv_face.createEigenFaceRecognizer;
-//import static org.bytedeco.javacpp.opencv_face.createFisherFaceRecognizer;
-//import static org.bytedeco.javacpp.opencv_face.createLBPHFaceRecognizer;
-
 import static org.bytedeco.javacpp.opencv_face.EigenFaceRecognizer;
-import static org.bytedeco.javacpp.opencv_face.FisherFaceRecognizer;
-import static org.bytedeco.javacpp.opencv_face.LBPHFaceRecognizer;
-
-
-
 import static org.bytedeco.javacpp.opencv_imgcodecs.CV_LOAD_IMAGE_GRAYSCALE;
 import static org.bytedeco.javacpp.opencv_imgcodecs.imread;
 import static org.bytedeco.javacpp.opencv_imgproc.CV_BGR2GRAY;
@@ -44,10 +35,8 @@ public class TrainHelper {
     public static final int IMG_SIZE = 160;
 
     public static final String EIGEN_FACES_CLASSIFIER = "eigenFacesClassifier.yml";
-    public static final String FISHER_FACES_CLASSIFIER = "fisherFacesClassifier.yml";
-    public static final String LBPH_CLASSIFIER = "lbphClassifier.yml";
     public static final String FILE_NAME_PATTERN = "person.%d.%d.jpg";
-    public static final int PHOTOS_TRAIN_QTY = 25;
+    public static final int PHOTOS_TRAIN_QTY = 1;
     public static final double ACCEPT_LEVEL = 4000.0D;
 
 
@@ -145,28 +134,22 @@ public class TrainHelper {
         }
 
         FaceRecognizer eigenfaces  = EigenFaceRecognizer.create();
-        FaceRecognizer fisherfaces = FisherFaceRecognizer.create();
-        FaceRecognizer lbph        = LBPHFaceRecognizer.create(2,9,9,9,1);
 
         eigenfaces.train(photos, labels);
         File f = new File(photosFolder, EIGEN_FACES_CLASSIFIER);
         f.createNewFile();
         eigenfaces.save(f.getAbsolutePath());
 
-//TODO: Implement this other classifiers
-//        fisherfaces.train(photos, labels);
-//        f = new File(photosFolder, FISHER_FACES_CLASSIFIER);
-//        f.createNewFile();
-//        fisherfaces.save(f.getAbsolutePath());
-//
-//        lbph.train(photos, labels);
-//        f = new File(photosFolder, LBPH_CLASSIFIER);
-//        f.createNewFile();
-//        lbph.save(f.getAbsolutePath());
         return true;
     }
 
-    public static void takePhoto(Context context, int personId, int photoNumber, Mat rgbaMat, opencv_objdetect.CascadeClassifier faceDetector) throws Exception{
+
+    // Take a photo from the camera and stored it in an absolute path.
+    // The returned path may change over time if the calling app is moved to an adopted storage device, so only relative paths should be persisted.
+    // TO-DO: Fixed this method to a method that gets the photo from the relative path instead of captured face.
+    public static void takePhoto(Context context, int personId, int photoNumber, Mat rgbaMat, opencv_objdetect.CascadeClassifier faceDetector) throws Exception {
+
+        // Create a new folder.
         File folder = new File(context.getFilesDir(), TRAIN_FOLDER);
         if(folder.exists() && !folder.isDirectory())
             folder.delete();
@@ -174,15 +157,20 @@ public class TrainHelper {
             folder.mkdirs();
 
         int qtyPhotos = PHOTOS_TRAIN_QTY;
+
+        // Create grey Mat.
         Mat greyMat = new Mat(rgbaMat.rows(), rgbaMat.cols());
 
+        // Converts an image from one color space to another.
         cvtColor(rgbaMat, greyMat, CV_BGR2GRAY);
+
+        // Detect the face for capturing the face.
         opencv_core.RectVector detectedFaces = new opencv_core.RectVector();
         faceDetector.detectMultiScale(greyMat, detectedFaces, 1.1, 1, 0, new Size(150,150), new Size(500,500));
         for (int i = 0; i < detectedFaces.size(); i++) {
 
             opencv_core.Rect rectFace = detectedFaces.get(0);
-            rectangle(rgbaMat, rectFace, new opencv_core.Scalar(0,0,255, 0));
+            rectangle(rgbaMat, rectFace, new opencv_core.Scalar(0,0,255,0));
             Mat capturedFace = new Mat(greyMat, rectFace);
             resize(capturedFace, capturedFace, new Size(IMG_SIZE,IMG_SIZE));
 

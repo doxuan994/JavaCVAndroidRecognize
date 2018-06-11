@@ -21,9 +21,6 @@ import android.hardware.Camera.Size;
 
 
 
-
-
-
 import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -234,7 +231,6 @@ public class CvCameraPreview extends SurfaceView implements SurfaceHolder.Callba
                 onExitStoppedState();
                 break;
         }
-        ;
     }
 
     private void processEnterState(int state) {
@@ -652,6 +648,7 @@ public class CvCameraPreview extends SurfaceView implements SurfaceHolder.Callba
         if (Build.VERSION.SDK_INT >= 9) {
             // on >= API 9 we can proceed with the CameraInfo method
             // and also we have to keep in mind that the camera could be the front one
+
             Camera.CameraInfo info = new Camera.CameraInfo();
             Camera.getCameraInfo(cameraId, info);
 
